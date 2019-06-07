@@ -1,6 +1,5 @@
 package matilda2
 
-import com.codahale.metrics.annotation.Timed
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.dropwizard.Application
 import io.dropwizard.Configuration
@@ -8,54 +7,47 @@ import io.dropwizard.setup.Environment
 import org.hibernate.validator.constraints.Length
 import org.hibernate.validator.constraints.NotEmpty
 import java.util.*
-import java.util.concurrent.atomic.AtomicLong
 import javax.validation.Valid
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType.APPLICATION_JSON
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 
-class HWConfiguration(
-        @JsonProperty @NotEmpty val template: String = "",
-        @JsonProperty @NotEmpty val defaultName: String = "Stranger"
-) : Configuration() {
-
-    constructor() : this("", "") // needed by Jackson deserialization
-}
-
-class HWSaying(
-        @JsonProperty @field:Length(max = 3) val content: String = ""
-) {
-
-    constructor() : this("") // needed by Jackson deserialization
-}
-
-@Path("/hello-world")
+@Path("/clock")
 @Produces(APPLICATION_JSON)
-class HWResource(
-        private val template: String,
-        private val defaultName: String) {
-
-    @GET
-    fun getHello(@QueryParam("name") name: Optional<String>): HWSaying {
-        val value = String.format(template, name.orElse(defaultName))
-        return HWSaying(value)
-    }
+class ClockResource() {
 
     @POST
-    fun postHello(@Valid saying: HWSaying) = HWSaying("bye ${saying.content}")
+    @Consumes(APPLICATION_JSON)
+    fun clock(
+        @Valid clockDTO: ClockDTO
+    ): ReturnDTO {
+
+        println("We got the request $clockDTO")
+        val dateTime = DateTime(DateTimeZone.UTC)
+        println("We got the request in the time: $dateTime")
+        val returnDTO = ReturnDTO(time = dateTime, clockDTO = clockDTO) 
+        return returnDTO
+    }
+
+    data class ClockDTO(
+        @JsonProperty val content: String = ""
+    )
+
+    data class ReturnDTO(
+        val clockDTO: ClockDTO,
+        val time: DateTime
+    )
 }
 
-class HWApplication : Application<HWConfiguration>() {
+class HWApplication : Application<Configuration>() {
 
     override fun getName() = "hello-world"
 
-    override fun run(conf: HWConfiguration, env: Environment) {
-        val hwResource = HWResource(conf.template, conf.defaultName)
-
-        env.jersey().register(hwResource)
+    override fun run(conf: Configuration, env: Environment) {
+        val clockResource = ClockResource()
+        env.jersey().register(clockResource)
     }
-
 }
 
-fun main(args: Array<String>) {
-    HWApplication().run(*args)
-}
+fun main(args: Array<String>) = HWApplication().run(*args)
