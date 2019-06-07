@@ -15,19 +15,28 @@ import org.joda.time.DateTimeZone
 
 @Path("/clock")
 @Produces(APPLICATION_JSON)
-class ClockResource() {
+class ClockResource(
+    private val userPressService: IUserPressService
+) {
 
     @POST
     @Consumes(APPLICATION_JSON)
     fun clock(
         @Valid clockDTO: ClockDTO
     ): ReturnDTO {
-
         println("We got the request $clockDTO")
         val dateTime = DateTime(DateTimeZone.UTC)
         println("We got the request in the time: $dateTime")
+        
+        userPressService.userPressed(clockDTO.content, dateTime)
+
         val returnDTO = ReturnDTO(time = dateTime, clockDTO = clockDTO) 
         return returnDTO
+    }
+
+    @GET
+    fun getTopList(): TopListDTO {
+        return TopListDTO(userPressService.getTopList()) 
     }
 
     data class ClockDTO(
@@ -38,6 +47,10 @@ class ClockResource() {
         val clockDTO: ClockDTO,
         val time: DateTime
     )
+
+    data class TopListDTO(
+        val topList: Map<String, DateTime>
+    )
 }
 
 class HWApplication : Application<Configuration>() {
@@ -45,7 +58,7 @@ class HWApplication : Application<Configuration>() {
     override fun getName() = "hello-world"
 
     override fun run(conf: Configuration, env: Environment) {
-        val clockResource = ClockResource()
+        val clockResource = ClockResource(UserPressService())
         env.jersey().register(clockResource)
     }
 }
