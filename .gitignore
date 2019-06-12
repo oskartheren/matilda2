@@ -3,3 +3,8 @@
 
 # Ignore Gradle build output directory
 build
+
+
+# We dont need dat intellij shit!
+.idea
+matilda2.iml
