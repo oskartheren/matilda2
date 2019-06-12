@@ -3,7 +3,9 @@ package matilda2
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.dropwizard.Application
 import io.dropwizard.Configuration
+import io.dropwizard.jersey.jackson.JsonProcessingExceptionMapper
 import io.dropwizard.setup.Environment
+import org.eclipse.jetty.servlets.CrossOriginFilter
 import org.hibernate.validator.constraints.Length
 import org.hibernate.validator.constraints.NotEmpty
 import java.util.*
@@ -12,6 +14,8 @@ import javax.ws.rs.*
 import javax.ws.rs.core.MediaType.APPLICATION_JSON
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import javax.servlet.DispatcherType
+import javax.servlet.FilterRegistration
 
 @Path("/clock")
 @Produces(APPLICATION_JSON)
@@ -53,11 +57,26 @@ class ClockResource(
     )
 }
 
+fun configureCORS(env: Environment) {
+    val cors = env.servlets().addFilter("CORS", CrossOriginFilter::class.java)
+
+    cors.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "*")
+    cors.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM,
+            "X-Requested-With,Content-Type,Accept,Origin,Authorization")
+    cors.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM,
+            "OPTIONS,GET,PUT,POST,DELETE,HEAD")
+    cors.setInitParameter(CrossOriginFilter.ALLOW_CREDENTIALS_PARAM, "true")
+
+   cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType::class.java), true, "/*")
+}
+
 class HWApplication : Application<Configuration>() {
 
     override fun getName() = "hello-world"
 
     override fun run(conf: Configuration, env: Environment) {
+        configureCORS(env)
+        env.jersey().register(JsonProcessingExceptionMapper(true))
         val clockResource = ClockResource(UserPressService())
         env.jersey().register(clockResource)
     }
