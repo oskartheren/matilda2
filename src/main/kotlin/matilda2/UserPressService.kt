@@ -4,18 +4,23 @@ import org.joda.time.DateTime
 
 interface IUserPressService {
     fun userPressed(userId: String, time: DateTime)
-    fun getTopList(): Map<String, DateTime>
+    fun getTopList(): List<TopListItem>
 }
 
-class UserPressService: IUserPressService {
-    private val topList = HashMap<String, DateTime>()
+class UserPressService : IUserPressService {
+    private val topList = mutableListOf<TopListItem>()
 
     override fun userPressed(userId: String, time: DateTime) {
-        if (!topList.containsKey(userId))
-            topList[userId] = time
+        if (!topList.any { item -> item.userId == userId })
+            topList.add(TopListItem(userId, time))
     }
 
-    override fun getTopList(): Map<String, DateTime> {
-        return HashMap(topList)
+    override fun getTopList(): List<TopListItem> {
+        return topList
     }
 }
+
+data class TopListItem(
+        val userId: String,
+        val time: DateTime
+)

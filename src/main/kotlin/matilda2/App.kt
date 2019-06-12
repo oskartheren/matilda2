@@ -55,8 +55,7 @@ class ClockResource(
     }
 
     data class ClockDTO(
-            @JsonProperty val content: String = "",
-            @JsonProperty val dateTime: DateTime
+            @JsonProperty val content: String = ""
     )
 
     data class ReturnDTO(
@@ -65,7 +64,7 @@ class ClockResource(
     )
 
     data class TopListDTO(
-            val topList: Map<String, DateTime>
+            val topList: List<TopListItem>
     )
 }
 
