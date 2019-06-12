@@ -8,3 +8,7 @@ build
 # We dont need dat intellij shit!
 .idea
 matilda2.iml
+
+# we dont want the node shit either mang
+matilda2-app/node_modules
+node_modules
