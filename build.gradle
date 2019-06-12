@@ -43,7 +43,7 @@ dependencies {
 }
 
 // Define the main class for the application.
-mainClassName = 'matilda2.AppKt'
+mainClassName = 'matilda2.Launcher'
 run {
     args = ['server', 'config.yml']
 }
