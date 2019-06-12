@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ToplistService } from './toplist.service';
 
 @Component({
@@ -6,11 +6,20 @@ import { ToplistService } from './toplist.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'matilda2-app';
+  toplistService: ToplistService;
+
+  ngOnInit(): void {
+    let self = this;
+    this.toplistService.getTopList(function(data) {
+      console.log(data.topList);
+      self.title = data.topList[0].userId;
+    });
+  }
 
   constructor(toplistService: ToplistService) {
-    this.title = toplistService.getTopList();
+    this.toplistService = toplistService;
   }
 
 }
