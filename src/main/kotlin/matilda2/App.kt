@@ -1,59 +1,71 @@
 package matilda2
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import io.dropwizard.Application
 import io.dropwizard.Configuration
 import io.dropwizard.jersey.jackson.JsonProcessingExceptionMapper
+import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
 import org.eclipse.jetty.servlets.CrossOriginFilter
-import org.hibernate.validator.constraints.Length
-import org.hibernate.validator.constraints.NotEmpty
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import java.util.*
+import javax.servlet.DispatcherType
 import javax.validation.Valid
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType.APPLICATION_JSON
-import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
-import javax.servlet.DispatcherType
-import javax.servlet.FilterRegistration
 
-@Path("/clock")
+@Path("hello-world")
+@Produces(APPLICATION_JSON)
+class HelloWorldResource {
+    @GET
+    fun getHelloWorld(): HelloWorldDTO {
+        return HelloWorldDTO("Hello, world!")
+    }
+
+    data class HelloWorldDTO(
+            val content: String
+    )
+}
+
+@Path("clock")
 @Produces(APPLICATION_JSON)
 class ClockResource(
-    private val userPressService: IUserPressService
+        private val userPressService: IUserPressService
 ) {
 
     @POST
     @Consumes(APPLICATION_JSON)
     fun clock(
-        @Valid clockDTO: ClockDTO
+            @Valid clockDTO: ClockDTO
     ): ReturnDTO {
         println("We got the request $clockDTO")
         val dateTime = DateTime(DateTimeZone.UTC)
         println("We got the request in the time: $dateTime")
-        
+
         userPressService.userPressed(clockDTO.content, dateTime)
 
-        val returnDTO = ReturnDTO(time = dateTime, clockDTO = clockDTO) 
-        return returnDTO
+        return ReturnDTO(time = dateTime, clockDTO = clockDTO)
     }
 
     @GET
     fun getTopList(): TopListDTO {
-        return TopListDTO(userPressService.getTopList()) 
+        return TopListDTO(userPressService.getTopList())
     }
 
     data class ClockDTO(
-        @JsonProperty val content: String = ""
+            @JsonProperty val content: String = "",
+            @JsonProperty val dateTime: DateTime
     )
 
     data class ReturnDTO(
-        val clockDTO: ClockDTO,
-        val time: DateTime
+            val clockDTO: ClockDTO,
+            val time: DateTime
     )
 
     data class TopListDTO(
-        val topList: Map<String, DateTime>
+            val topList: Map<String, DateTime>
     )
 }
 
@@ -74,12 +86,27 @@ class HWApplication : Application<Configuration>() {
 
     override fun getName() = "hello-world"
 
+    override fun initialize(bootstrap: Bootstrap<Configuration>) {
+        super.initialize(bootstrap)
+        with(bootstrap.objectMapper) {
+            registerModule(KotlinModule())
+        }
+    }
+
     override fun run(conf: Configuration, env: Environment) {
         configureCORS(env)
         env.jersey().register(JsonProcessingExceptionMapper(true))
         val clockResource = ClockResource(UserPressService())
         env.jersey().register(clockResource)
+
+        env.jersey().register(HelloWorldResource())
     }
 }
 
-fun main(args: Array<String>) = HWApplication().run(*args)
+object Launcher {
+    @JvmStatic
+    fun main(args: Array<String>) {
+        HWApplication().run(*args)
+    }
+
+}
