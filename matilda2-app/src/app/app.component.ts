@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ToplistService } from './toplist.service';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,9 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'matilda2-app';
+
+  constructor(toplistService: ToplistService) {
+    this.title = toplistService.getTopList();
+  }
+
 }
