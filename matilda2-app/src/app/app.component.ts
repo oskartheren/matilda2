@@ -7,14 +7,14 @@ import { ToplistService } from './toplist.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  title = 'matilda2-app';
+  topList = [];
   toplistService: ToplistService;
 
   ngOnInit(): void {
     let self = this;
     this.toplistService.getTopList(function(data) {
       console.log(data.topList);
-      self.title = data.topList[0].userId;
+      self.topList = data.topList;
     });
   }
 
