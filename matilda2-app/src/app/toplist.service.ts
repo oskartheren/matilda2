@@ -9,13 +9,11 @@ import { log } from 'util';
 })
 export class ToplistService {
 
-  private url = 'http://192.168.1.105:8080/clock';
-
   constructor(private http: HttpClient) {
   }
 
   getTopList(cb: (data: any) => void) {
-    this.http.get(this.url).subscribe(
+    this.http.get('/clock').subscribe(
       data => {
         console.log(data);
         // cb(JSON.toString(data));
@@ -34,7 +32,7 @@ export class ToplistService {
       })
     };
 
-    this.http.post(this.url, {content: userId}, httpOptions).subscribe(
+    this.http.post('/clock', {content: userId}, httpOptions).subscribe(
       data => {
         console.log(data);
       },
