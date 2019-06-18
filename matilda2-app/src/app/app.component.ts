@@ -12,14 +12,17 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     let self = this;
-    this.toplistService.getTopList(function(data) {
+    this.toplistService.getTopList(data => {
       console.log(data.topList);
       self.topList = data.topList;
     });
   }
 
   constructor(toplistService: ToplistService) {
-    this.toplistService = toplistService;
+    this.toplistService = toplistService
   }
 
+  addToToplist() {
+    this.toplistService.addToToplist('Palle Kuling number ' + Math.floor(Math.random() * 100))
+  }
 }
