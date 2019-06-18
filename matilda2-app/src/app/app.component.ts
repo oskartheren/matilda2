@@ -21,12 +21,14 @@ export class AppComponent implements OnInit {
   }
 
   addToToplist(form: NgForm) {
-    this.toplistService.addToToplist(form.value.userId).subscribe( data => console.debug(data),
-        error => {
-          console.error("Could not add to top list :(")
-          console.error(error)
-        }
-      )
+    this.toplistService.addToToplist(form.value.userId).subscribe(
+      (data: TopList) => {
+        console.debug(data);
+        this.topList = data.topList;
+      },error => {
+        console.error("Could not add to top list :(")
+        console.error(error)
+      });
   }
 
   getTopList() {
