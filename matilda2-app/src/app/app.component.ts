@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ToplistService } from './toplist.service';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
@@ -22,7 +23,7 @@ export class AppComponent implements OnInit {
     this.toplistService = toplistService
   }
 
-  addToToplist() {
-    this.toplistService.addToToplist('Palle Kuling number ' + Math.floor(Math.random() * 100))
+  addToToplist(form: NgForm) {
+    this.toplistService.addToToplist(form.value.userId)
   }
 }

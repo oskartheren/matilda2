@@ -9,7 +9,12 @@
     </ul>
     <p *ngIf="topList.length < 1">Hurry up if you want to eat that curry!</p>
   </h1>
-  <button (click)="addToToplist()">Currytime</button>
+
+  <form #f="ngForm" (ngSubmit)="addToToplist(f)" (keyup.enter)="addToToplist(f)">
+    <input name="userId" ngModel="">
+    <button type="submit" >Currytime</button>
+  </form>
+
 
 </div>
 <router-outlet></router-outlet>
