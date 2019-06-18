@@ -1,44 +1,25 @@
 import { Injectable, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError } from 'rxjs/operators';
-import { ObservableInput } from 'rxjs';
-import { log } from 'util';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ToplistService {
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient) { }
+
+  getTopList(): Observable<Object> {
+    return this.http.get('/clock')
   }
 
-  getTopList(cb: (data: any) => void) {
-    this.http.get('/clock').subscribe(
-      data => {
-        console.log(data);
-        // cb(JSON.toString(data));
-        cb(data);
-      },
-      error => {
-        console.log(error);
-        cb('DET BLEV JU FELLL!');
-      });
-  }
-
-  addToToplist(userId: string) {
+  addToToplist(userId: string): Observable<Object> {
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json'
       })
     };
 
-    this.http.post('/clock', {content: userId}, httpOptions).subscribe(
-      data => {
-        console.log(data);
-      },
-      error => {
-        console.error(error)
-      }
-    );
+    return this.http.post('/clock', {content: userId}, httpOptions)
   }
 }

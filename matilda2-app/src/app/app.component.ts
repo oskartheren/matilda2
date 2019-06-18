@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ToplistService } from './toplist.service';
 import { NgForm } from '@angular/forms';
+import { TopList } from './top-list'
 
 @Component({
   selector: 'app-root',
@@ -12,11 +13,7 @@ export class AppComponent implements OnInit {
   toplistService: ToplistService;
 
   ngOnInit(): void {
-    let self = this;
-    this.toplistService.getTopList(data => {
-      console.log(data.topList);
-      self.topList = data.topList;
-    });
+    this.getTopList()
   }
 
   constructor(toplistService: ToplistService) {
@@ -24,6 +21,24 @@ export class AppComponent implements OnInit {
   }
 
   addToToplist(form: NgForm) {
-    this.toplistService.addToToplist(form.value.userId)
+    this.toplistService.addToToplist(form.value.userId).subscribe( data => console.debug(data),
+        error => {
+          console.error("Could not add to top list :(")
+          console.error(error)
+        }
+      )
+  }
+
+  getTopList() {
+    this.toplistService.getTopList().subscribe(
+      (data: TopList) => {
+        console.debug(data.topList)
+        this.topList = data.topList
+      },
+      error => {
+        console.error("Could not get top list :(")
+        console.error(error)
+      }
+    )
   }
 }
