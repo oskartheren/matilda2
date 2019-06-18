@@ -7,6 +7,9 @@ import io.dropwizard.Configuration
 import io.dropwizard.jersey.jackson.JsonProcessingExceptionMapper
 import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
+import matilda2.contracts.ClockDTO
+import matilda2.contracts.HelloWorldDTO
+import matilda2.contracts.TopListDTO
 import org.eclipse.jetty.servlets.CrossOriginFilter
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -23,10 +26,6 @@ class HelloWorldResource {
     fun getHelloWorld(): HelloWorldDTO {
         return HelloWorldDTO("Hello, world!")
     }
-
-    data class HelloWorldDTO(
-            val content: String
-    )
 }
 
 @Path("clock")
@@ -39,33 +38,31 @@ class ClockResource(
     @Consumes(APPLICATION_JSON)
     fun clock(
             @Valid clockDTO: ClockDTO
-    ): ReturnDTO {
-        println("We got the request $clockDTO")
+    ): TopListDTO {
         val dateTime = DateTime(DateTimeZone.UTC)
-        println("We got the request in the time: $dateTime")
 
-        userPressService.userPressed(clockDTO.content, dateTime)
+        val result = userPressService.userPressed(clockDTO.content, dateTime).map {
+            it.toDTO()
+        }
 
-        return ReturnDTO(time = dateTime, clockDTO = clockDTO)
+        return TopListDTO(result)
     }
 
     @GET
     fun getTopList(): TopListDTO {
-        return TopListDTO(userPressService.getTopList())
+        val result = userPressService.getTopList().map {
+            it.toDTO()
+        }
+        return TopListDTO(result)
     }
 
-    data class ClockDTO(
-            @JsonProperty val content: String = ""
-    )
+    private fun TopListItem.toDTO(): TopListDTO.TopListItemDTO {
+        return TopListDTO.TopListItemDTO(
+                userId = this.userId,
+                time = this.time
+        )
+    }
 
-    data class ReturnDTO(
-            val clockDTO: ClockDTO,
-            val time: DateTime
-    )
-
-    data class TopListDTO(
-            val topList: List<TopListItem>
-    )
 }
 
 fun configureCORS(env: Environment) {
